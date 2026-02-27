@@ -161,13 +161,27 @@ reconagent/
 
 ---
 
-## Deployment (Render)
+## Deployment
 
-The `Dockerfile` uses a two-stage build: the first stage builds the React app with Vite, the second stage runs the FastAPI backend and serves the built frontend as static files from the same container.
+The `Dockerfile` uses a two-stage build: the first stage builds the React app with Vite, the second stage runs the FastAPI backend and serves the built frontend as static files from the same container. The port is configurable via a `PORT` environment variable (defaults to 7860).
 
-To deploy on Render:
+### Hugging Face Spaces (recommended — no cold starts, no credit card)
+
+1. Create a new Space at [huggingface.co](https://huggingface.co), set SDK to **Docker**
+2. Link it to this GitHub repo
+3. Under **Settings → Variables and Secrets**, add:
+   - `GROQ_API_KEY` (secret)
+   - `TAVILY_API_KEY` (secret)
+   - `GROQ_MODEL` = `llama-3.3-70b-versatile`
+4. HF will build and deploy automatically on every push
+
+Note: SQLite history does not persist between Space restarts on the free tier.
+
+### Render
 
 1. Push to GitHub
 2. Create a new **Web Service** on Render, connect this repo, and set runtime to **Docker**
 3. Add environment variables: `GROQ_API_KEY`, `TAVILY_API_KEY`
 4. The `render.yaml` in this repo handles the rest, including a 1 GB persistent disk for SQLite at `/data`
+
+Note: Render free tier spins down after 15 minutes of inactivity (~30-60 second cold start on next request).
