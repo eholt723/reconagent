@@ -74,14 +74,15 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
+      <div className="max-w-4xl w-full mx-auto px-4 py-10 flex-1">
 
         {/* Header */}
         <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">AutoResearch Agent</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">ReconAgent</h1>
           <p className="text-gray-400 text-lg">
-            Autonomous research with real-time agent reasoning
+            <span className="text-cyan-500 font-medium">AutoResearch</span>
+            {' · '}Autonomous research with real-time agent reasoning
           </p>
         </div>
 
@@ -103,6 +104,13 @@ export default function App() {
         {/* Final report */}
         {report && <ReportPanel report={report} />}
 
+      </div>
+
+      {/* Footer */}
+      <div className="w-full px-6 py-4 flex justify-end">
+        <p className="text-xs text-gray-600">
+          Created by <span className="text-gray-500">Eric Holt</span>
+        </p>
       </div>
     </div>
   )
