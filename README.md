@@ -1,8 +1,8 @@
 ---
 title: ReconAgent
 emoji: 🔍
-colorFrom: cyan
-colorTo: teal
+colorFrom: blue
+colorTo: green
 sdk: docker
 pinned: false
 ---
