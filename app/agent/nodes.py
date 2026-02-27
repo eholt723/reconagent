@@ -6,7 +6,7 @@ from functools import partial
 from groq import AsyncGroq
 from tavily import TavilyClient
 from groq import RateLimitError
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
 
 from app.agent.prompts import (
     PLANNER_SYSTEM,
@@ -26,9 +26,9 @@ tavily_client = TavilyClient(api_key=settings.tavily_api_key)
 
 
 @retry(
-    retry=retry_if_exception_type(RateLimitError),
-    stop=stop_after_attempt(4),
-    wait=wait_exponential(multiplier=2, min=10, max=70),
+    retry=retry_if_not_exception_type(RateLimitError),
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
     reraise=True,
 )
 async def _call_llm(messages: list, json_mode: bool = False) -> str:
@@ -207,11 +207,13 @@ async def synthesis_node(state: AgentState) -> dict:
             json_mode=False,
         )
     except RateLimitError:
-        logger.error("Synthesis hit rate limit after retries")
-        report = f"# Research Report: {topic}\n\n> Rate limit reached. Please wait a moment and try again."
+        logger.error("Synthesis hit rate limit")
+        events.append({"type": "error", "content": "Groq rate limit reached. Please wait ~60 seconds and try again."})
+        return {"final_report": "", "events": events}
     except Exception as exc:
         logger.error("Synthesis error: %s", exc)
-        report = f"# Research Report: {topic}\n\n> Unexpected error generating report. Please try again."
+        events.append({"type": "error", "content": "Unexpected error generating report. Please try again."})
+        return {"final_report": "", "events": events}
 
     events.append({"type": "synthesizing", "content": "Report complete."})
     events.append({"type": "report", "content": report})
