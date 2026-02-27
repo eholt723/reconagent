@@ -208,7 +208,7 @@ async def synthesis_node(state: AgentState) -> dict:
         )
     except RateLimitError:
         logger.error("Synthesis hit rate limit")
-        events.append({"type": "error", "content": "Groq rate limit reached. Please wait ~60 seconds and try again."})
+        events.append({"type": "error", "content": "Groq free-tier rate limit reached. This demo runs on llama-3.3-70b-versatile via Groq's free API — swapping to a paid tier or a different model removes this restriction. Please wait ~60 seconds and try again."})
         return {"final_report": "", "events": events}
     except Exception as exc:
         logger.error("Synthesis error: %s", exc)
