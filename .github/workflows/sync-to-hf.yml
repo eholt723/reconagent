@@ -17,5 +17,6 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          git config --global credential.helper '!f() { echo "username=eholt723"; echo "password=$HF_TOKEN"; }; f'
           git remote add space https://huggingface.co/spaces/eholt723/reconagent
-          git -c http.extraHeader="Authorization: Bearer $HF_TOKEN" push space main --force
+          git push space main --force
