@@ -18,5 +18,10 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           git config --global credential.helper '!f() { echo "username=eholt723"; echo "password=$HF_TOKEN"; }; f'
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git remote add space https://huggingface.co/spaces/eholt723/reconagent
-          git push space main --force
+          git checkout --orphan hf-deploy
+          git add -A
+          git commit -m "deploy"
+          git push space hf-deploy:main --force
