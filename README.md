@@ -168,7 +168,7 @@ The `Dockerfile` uses a two-stage build: the first stage builds the React app wi
 ### Hugging Face Spaces (recommended — no cold starts, no credit card)
 
 1. Create a new Space at [huggingface.co](https://huggingface.co), set SDK to **Docker**
-2. Link it to this GitHub repo
+2. Link it to your GitHub repo
 3. Under **Settings → Variables and Secrets**, add:
    - `GROQ_API_KEY` (secret)
    - `TAVILY_API_KEY` (secret)
