@@ -1,3 +1,12 @@
+---
+title: ReconAgent
+emoji: 🔍
+colorFrom: cyan
+colorTo: teal
+sdk: docker
+pinned: false
+---
+
 # AutoResearch Agent
 
 An autonomous research agent that accepts a plain-text topic, dynamically plans and executes a multi-step web search strategy, reflects on whether the results are sufficient, and streams both its reasoning trace and a final structured report back to the browser in real time.

@@ -22,6 +22,6 @@ COPY app/ ./app/
 # Copy built React app into 'static/' so FastAPI can serve it
 COPY --from=frontend-build /app/frontend/dist ./static
 
-EXPOSE 8000
+EXPOSE 7860
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
