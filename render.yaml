@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: reconagent
+    runtime: docker
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: DATABASE_PATH
+        value: /data/research_history.db
+    disk:
+      name: research-db
+      mountPath: /data
+      sizeGB: 1
