@@ -1,20 +1,38 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import HistoryPanel from './components/HistoryPanel'
 import ReportPanel from './components/ReportPanel'
 import ResearchInput from './components/ResearchInput'
 import TracePanel from './components/TracePanel'
 
 export default function App() {
+  const [inputValue, setInputValue] = useState('')
+  const [currentTopic, setCurrentTopic] = useState('')
   const [isRunning, setIsRunning] = useState(false)
   const [traceEvents, setTraceEvents] = useState([])
   const [report, setReport] = useState('')
   const [error, setError] = useState('')
+  const [history, setHistory] = useState([])
   const abortRef = useRef(null)
 
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch('/research/history?limit=15')
+      const data = await res.json()
+      setHistory(data.history)
+    } catch {
+      // non-fatal — history is a nice-to-have
+    }
+  }
+
+  useEffect(() => {
+    fetchHistory()
+  }, [])
+
   const handleSubmit = async (topic) => {
-    // Cancel any in-flight request before starting a new one
     abortRef.current?.abort()
     abortRef.current = new AbortController()
 
+    setCurrentTopic(topic)
     setIsRunning(true)
     setTraceEvents([])
     setReport('')
@@ -42,7 +60,7 @@ export default function App() {
 
         buffer += decoder.decode(value, { stream: true })
         const parts = buffer.split('\n\n')
-        buffer = parts.pop() // keep any incomplete chunk
+        buffer = parts.pop()
 
         for (const part of parts) {
           if (!part.startsWith('data: ')) continue
@@ -50,6 +68,7 @@ export default function App() {
             const event = JSON.parse(part.slice(6))
             if (event.type === 'done') {
               setIsRunning(false)
+              fetchHistory()
             } else if (event.type === 'report') {
               setReport(event.content)
             } else if (event.type === 'error') {
@@ -91,7 +110,19 @@ export default function App() {
         </div>
 
         {/* Input */}
-        <ResearchInput onSubmit={handleSubmit} onStop={handleStop} isRunning={isRunning} />
+        <ResearchInput
+          onSubmit={handleSubmit}
+          onStop={handleStop}
+          isRunning={isRunning}
+          value={inputValue}
+          onChange={setInputValue}
+        />
+
+        {/* Recent searches */}
+        <HistoryPanel
+          history={history}
+          onSelect={(topic) => setInputValue(topic)}
+        />
 
         {/* Error banner */}
         {error && (
@@ -102,7 +133,7 @@ export default function App() {
 
         {/* Agent trace */}
         {(traceEvents.length > 0 || isRunning) && !error && (
-          <TracePanel events={traceEvents} isRunning={isRunning} />
+          <TracePanel events={traceEvents} isRunning={isRunning} topic={currentTopic} />
         )}
 
         {/* Final report */}

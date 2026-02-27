@@ -1,15 +1,16 @@
-export default function ResearchInput({ onSubmit, onStop, isRunning }) {
+export default function ResearchInput({ onSubmit, onStop, isRunning, value, onChange }) {
   const handleSubmit = (e) => {
     e.preventDefault()
-    const topic = e.target.topic.value.trim()
+    const topic = value.trim()
     if (topic) onSubmit(topic)
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-3">
       <input
-        name="topic"
         type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         placeholder="Enter a research topic — e.g. 'quantum computing applications in drug discovery'"
         disabled={isRunning}
         className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 disabled:opacity-50 transition-colors"

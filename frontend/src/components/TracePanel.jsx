@@ -31,7 +31,7 @@ function TraceEvent({ event }) {
   )
 }
 
-export default function TracePanel({ events, isRunning }) {
+export default function TracePanel({ events, isRunning, topic }) {
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -42,11 +42,16 @@ export default function TracePanel({ events, isRunning }) {
     <div className="mt-6 bg-gray-900 border border-gray-700 rounded-lg overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-700 bg-gray-800">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Agent Reasoning Trace
-        </span>
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider shrink-0">
+            Agent Reasoning Trace
+          </span>
+          {topic && (
+            <span className="text-xs text-gray-500 truncate">— "{topic}"</span>
+          )}
+        </div>
         {isRunning && (
-          <span className="flex items-center gap-1.5 text-xs text-cyan-400">
+          <span className="flex items-center gap-1.5 text-xs text-cyan-400 shrink-0">
             <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse" />
             Running
           </span>
