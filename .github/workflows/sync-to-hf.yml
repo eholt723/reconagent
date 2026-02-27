@@ -22,8 +22,6 @@ jobs:
           git config --global user.name "GitHub Action"
           git remote add space https://huggingface.co/spaces/eholt723/reconagent
           git checkout --orphan hf-deploy
-          rm -f frontend/public/favicon.png
-          sed -i '/<link rel="icon"/d' frontend/index.html
           git add -A
           git commit -m "deploy"
           git push space hf-deploy:main --force
