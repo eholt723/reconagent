@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
-import HistoryPanel from './components/HistoryPanel'
+import { useRef, useState } from 'react'
 import ReportPanel from './components/ReportPanel'
 import ResearchInput from './components/ResearchInput'
 import TracePanel from './components/TracePanel'
@@ -11,22 +10,7 @@ export default function App() {
   const [traceEvents, setTraceEvents] = useState([])
   const [report, setReport] = useState('')
   const [error, setError] = useState('')
-  const [history, setHistory] = useState([])
   const abortRef = useRef(null)
-
-  const fetchHistory = async () => {
-    try {
-      const res = await fetch('/research/history?limit=15')
-      const data = await res.json()
-      setHistory(data.history)
-    } catch {
-      // non-fatal — history is a nice-to-have
-    }
-  }
-
-  useEffect(() => {
-    fetchHistory()
-  }, [])
 
   const handleSubmit = async (topic) => {
     abortRef.current?.abort()
@@ -68,7 +52,6 @@ export default function App() {
             const event = JSON.parse(part.slice(6))
             if (event.type === 'done') {
               setIsRunning(false)
-              fetchHistory()
             } else if (event.type === 'report') {
               setReport(event.content)
             } else if (event.type === 'error') {
@@ -116,12 +99,6 @@ export default function App() {
           isRunning={isRunning}
           value={inputValue}
           onChange={setInputValue}
-        />
-
-        {/* Recent searches */}
-        <HistoryPanel
-          history={history}
-          onSelect={(topic) => setInputValue(topic)}
         />
 
         {/* Error banner */}

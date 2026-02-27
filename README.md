@@ -26,8 +26,6 @@ The agent runs as a compiled LangGraph `StateGraph` with four nodes:
 
 Each node emits typed SSE events (`planning`, `searching`, `reflecting`, `synthesizing`, `report`, `done`) as it runs. The frontend renders these progressively, giving a live view of the agent's reasoning before the final report appears.
 
-Past research runs are stored in SQLite and retrievable via `/research/history`.
-
 ---
 
 ## Tech stack
@@ -39,7 +37,6 @@ Past research runs are stored in SQLite and retrievable via `/research/history`.
 | Web search | Tavily Search API |
 | Backend | FastAPI, Python 3.11+ |
 | Streaming | Server-Sent Events via `StreamingResponse` |
-| Database | SQLite via aiosqlite |
 | Frontend | React 18, Vite, Tailwind CSS |
 | Markdown rendering | react-markdown + remark-gfm |
 | Deployment | Docker (multi-stage), Render free tier |
@@ -125,10 +122,6 @@ SSE event types:
 | `error` | Agent error message |
 | `done` | Stream complete |
 
-### `GET /research/history?limit=20`
-
-Returns past research runs from SQLite.
-
 ---
 
 ## Project structure
@@ -141,10 +134,8 @@ reconagent/
 │   │   ├── nodes.py       # Planner, Search, Reflection, Synthesis nodes
 │   │   ├── prompts.py     # LLM prompt templates
 │   │   └── state.py       # AgentState TypedDict
-│   ├── db/
-│   │   └── database.py    # SQLite helpers (aiosqlite)
 │   ├── routes/
-│   │   └── research.py    # /research/stream and /research/history
+│   │   └── research.py    # /research/stream endpoint
 │   ├── config.py          # Pydantic settings (reads .env)
 │   └── main.py            # FastAPI app, CORS, static file serving
 ├── frontend/
@@ -175,13 +166,11 @@ The `Dockerfile` uses a two-stage build: the first stage builds the React app wi
    - `GROQ_MODEL` = `llama-3.3-70b-versatile`
 4. HF will build and deploy automatically on every push
 
-Note: SQLite history does not persist between Space restarts on the free tier.
-
 ### Render
 
 1. Push to GitHub
 2. Create a new **Web Service** on Render, connect this repo, and set runtime to **Docker**
 3. Add environment variables: `GROQ_API_KEY`, `TAVILY_API_KEY`
-4. The `render.yaml` in this repo handles the rest, including a 1 GB persistent disk for SQLite at `/data`
+4. The `render.yaml` in this repo handles the rest
 
 Note: Render free tier spins down after 15 minutes of inactivity (~30-60 second cold start on next request).

@@ -6,7 +6,6 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.agent.graph import research_graph
-from app.db.database import get_history, save_run
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/research", tags=["research"])
@@ -29,25 +28,13 @@ async def stream_research(request: Request, body: ResearchRequest):
             "events": [],
         }
 
-        final_report = ""
-        initial_queries: list = []
-
         try:
             async for chunk in research_graph.astream(initial_state, stream_mode="updates"):
                 if await request.is_disconnected():
                     logger.info("Client disconnected during stream")
                     return
 
-                for node_name, state_update in chunk.items():
-                    # Capture initial queries from planner for history
-                    if node_name == "planner" and not initial_queries:
-                        initial_queries = state_update.get("planned_queries", [])
-
-                    # Capture final report for history
-                    if state_update.get("final_report"):
-                        final_report = state_update["final_report"]
-
-                    # Emit each new SSE event from this node
+                for _node_name, state_update in chunk.items():
                     for event in state_update.get("events", []):
                         yield f"data: {json.dumps(event)}\n\n"
 
@@ -57,11 +44,6 @@ async def stream_research(request: Request, body: ResearchRequest):
 
         finally:
             yield f"data: {json.dumps({'type': 'done', 'content': ''})}\n\n"
-            if final_report:
-                try:
-                    await save_run(body.topic, final_report, initial_queries)
-                except Exception as exc:
-                    logger.error("Failed to save run: %s", exc)
 
     return StreamingResponse(
         event_generator(),
@@ -71,9 +53,3 @@ async def stream_research(request: Request, body: ResearchRequest):
             "X-Accel-Buffering": "no",
         },
     )
-
-
-@router.get("/history")
-async def get_research_history(limit: int = 20):
-    history = await get_history(limit)
-    return {"history": history}

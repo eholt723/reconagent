@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.db.database import init_db
 from app.routes.research import router
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s: %(message)s")
@@ -14,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
     logger.info("AutoResearch Agent started")
     yield
     logger.info("AutoResearch Agent stopped")
