@@ -33,7 +33,16 @@ export default function ReportPanel({ report }) {
         prose-strong:text-gray-100
         prose-code:text-cyan-300
         prose-hr:border-gray-700">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ href, children }) => (
+              <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
+            ),
+          }}
+        >
+          {report}
+        </ReactMarkdown>
       </div>
     </div>
   )
