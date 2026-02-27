@@ -8,9 +8,13 @@ export default function App() {
   const [traceEvents, setTraceEvents] = useState([])
   const [report, setReport] = useState('')
   const [error, setError] = useState('')
-  const readerRef = useRef(null)
+  const abortRef = useRef(null)
 
   const handleSubmit = async (topic) => {
+    // Cancel any in-flight request before starting a new one
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
     setIsRunning(true)
     setTraceEvents([])
     setReport('')
@@ -21,6 +25,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic }),
+        signal: abortRef.current.signal,
       })
 
       if (!response.ok) {
@@ -28,7 +33,6 @@ export default function App() {
       }
 
       const reader = response.body.getReader()
-      readerRef.current = reader
       const decoder = new TextDecoder()
       let buffer = ''
 
@@ -68,8 +72,8 @@ export default function App() {
   }
 
   const handleStop = () => {
-    readerRef.current?.cancel()
-    readerRef.current = null
+    abortRef.current?.abort()
+    abortRef.current = null
     setIsRunning(false)
   }
 
